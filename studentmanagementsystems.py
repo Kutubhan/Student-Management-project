@@ -158,6 +158,85 @@ class Student:
                 self.Student_table.insert('',END,values= a)
             conn.commit()
         conn.close()
+        
+     def clear(self):
+        self.Roll_No_var.set("")
+        self.name_var.set("")
+        self.gender_var.set("")
+        self.email_var.set("")
+        self.contact_var.set("")
+        self.address_var.set("")
+
+    #get cursor
+    def get_cursor(self,ev):
+        cursor_row= self.Student_table.focus()
+        contents=self.Student_table.item(cursor_row)
+        row=contents["values"]
+
+        self.Roll_No_var.set(row[0])
+        self.name_var.set(row[1])
+        self.email_var.set(row[2])
+        self.gender_var.set(row[3])
+        self.contact_var.set(row[4])
+        self.address_var.set(row[5])
+
+    def update_data(self):
+        if (self.Roll_No_var.get() == "" or self.email_var.get() == "" or self.name_var.get() == "" or self.gender_var.get() == "" or self.contact_var.get() == "" or self.address_var.get() == ""):
+            messagebox.showerror("error", "all fields are required")
+        else:
+            try:
+                conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
+                                               database="studentmanagementsys")
+                my_cursur = conn.cursor()
+                my_cursur.execute("insert into student values(%s,%s,%s,%s,%s,%s)", (
+                    self.Roll_No_var.get(),
+                    self.name_var.get(),
+                    self.email_var.get(),
+                    self.gender_var.get(),
+                    self.contact_var.get(),
+                    self.address_var.get()
+                ))
+                conn.commit()
+                self.fetch_data()
+                conn.close()
+                messagebox.showinfo("Success", "Student has been updated!", parent=self.root)
+            except Exception as es:
+                messagebox.showerror("error", f"due to:2{str(es)}", parent=self.root)
+
+    def fetch_data(self):
+        conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
+                                           database="studentmanagementsys")
+        my_cursur = conn.cursor()
+        my_cursur.execute("select * from student")
+        data = my_cursur.fetchall()
+        if len(data) != 0:
+            self.Student_table.delete(*self.Student_table.get_children())
+            for a in data:
+                self.Student_table.insert('', END, values=a)
+            conn.commit()
+        conn.close()
+
+    def delete_data(self):
+        if self.Roll_No_var.get()=="":
+            messagebox.showerror("error", "all fields are required")
+        else:
+            try:
+                delete=messagebox.askyesno("delete","are sure delete this statment")
+                if delete>0:
+                    conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
+                                           database="studentmanagementsys")
+                    my_cursur = conn.cursor()
+                    sql="delete from student where Roll_No=%s"                  #other way of writing sql query instead of cursor()
+                    value=(self.Roll_No_var.get(),)
+                    mycursur.execute(sql,value)
+                else:
+                    if not delete:
+                        return
+                    conn.commit()
+                    self.fetch_data()
+                    conn.close()
+                    messagebox.showinfo("delete, your student has been deleted",parent=self.root)
+    
 
 
 
