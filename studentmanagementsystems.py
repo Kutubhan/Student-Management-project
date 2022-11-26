@@ -5,9 +5,10 @@ from tkinter import messagebox
 
 class Student:
     def __init__(self,root):
+        self.notebook=ttk.Notebook(self.root)
         self.root=root
-        self.root.title("IIT ashram")
-        self.root.geometry("1350x700+0+0")
+        self.root.title("IIT ASHRAM")
+        self.root.geometry("1360x700+0+0")
 
         # =====All variables========
         self.Roll_No_var = StringVar()
@@ -16,8 +17,10 @@ class Student:
         self.gender_var = StringVar()
         self.contact_var = StringVar()
         self.address_var = StringVar()
+        self.search_com_var = StringVar()
+        self.search_var = StringVar()
 
-        title=Label(self.root,text="IIT Ashram",bd=10,relief=GROOVE,font=("times new roman",40,"bold","italic"),bg="white",fg="blue")
+        title=Label(self.root,text="IIT ASHRAM",bd=10,relief=GROOVE,font=("times new roman",40,"bold","italic"),bg="white",fg="blue")
         title.pack(side=TOP,fill=X)
 
 
@@ -26,6 +29,7 @@ class Student:
 
         Manage_Frame=Frame(self.root,bd=4,relief=GROOVE,bg="#1560BD")
         Manage_Frame.place(x=20,y=100,width=450,height=560)
+
 
 
         m_title=Label(Manage_Frame,text="Manage Students",bg="#1560BD",fg="white",font=("times new roman",25,"bold"))
@@ -74,18 +78,20 @@ class Student:
         btn_Frame.place(x=40,y=480, width=380)
 
         Addbtn=Button(btn_Frame,text="Add",command=self.add_students,width=10).grid(row=0,column=0,padx=5, pady=10)
-        updatebtn = Button(btn_Frame, text="Update", width=10).grid(row=0, column=1, padx=5, pady=10)
-        deletebtn = Button(btn_Frame, text="Delete", width=10).grid(row=0, column=2, padx=5, pady=10)
-        clearbtn = Button(btn_Frame, text="Clear", width=10).grid(row=0, column=3, padx=5, pady=10)
+        updatebtn = Button(btn_Frame, text="Update", width=10,command=self.update_data).grid(row=0, column=1, padx=5, pady=10)
+        deletebtn = Button(btn_Frame, text="Delete", width=10,command=self.delete_data).grid(row=0, column=2, padx=5, pady=10)
+        clearbtn = Button(btn_Frame, text="Clear", width=10,command = self.clear).grid(row=0, column=3, padx=5, pady=10)
 
 
         # ======Detail Frame======
 
-        Detail_Frame = Frame(self.root, bd=4, relief=RIDGE, bg="#1560BD")
+        Detail_Frame = Frame(bd=4, relief=RIDGE, bg="#1560BD")
         Detail_Frame.place(x=500, y=100, width=800, height=560)
 
         lbl_search=Label(Detail_Frame, text="Search By:", bg="#1560BD", fg="white",font=("times new roman", 20, "bold"))
         lbl_search.grid(row=0, column=0, pady=10, padx=5, sticky="w")
+
+
         combo_search = ttk.Combobox(Detail_Frame,width=10, font=("times new roman", 13, "bold"), state="readonly")
         combo_search['values'] = ("Roll", "Name", "Contact")
         combo_search.grid(row=0, column=1, padx=5, pady=10)
@@ -122,6 +128,7 @@ class Student:
         self.Student_table.column("Address", width=200)
 
         self.Student_table.pack(fill= BOTH,expand=1)
+        self.Student_table.bind("<ButtonRelease>",self.get_cursor)
         self.fetch_data()
 
     def add_students(self):
@@ -129,9 +136,9 @@ class Student:
            messagebox.showerror("error","all fields are required")
         else:
             try:
-                conn=mysql.connector.connect(host="localhost",username="root",password="test@123",database="studentmanagementsys")
+                conn=mysql.connector.connect(host="localhost",username="root",password="kutubkhan",database="studentmanagementsys")
                 my_cursur=conn.cursor()
-                my_cursur.excecute("insert into student values(%s,%s,%s,%s,%s,%s)",(
+                my_cursur.execute("insert into student values(%s,%s,%s,%s,%s,%s)",(
                                                                                     self.Roll_No_var.get(),
                                                                                     self.name_var.get(),
                                                                                     self.email_var.get(),
@@ -145,7 +152,7 @@ class Student:
                 messagebox.showinfo("Success","Student has been added!",parent= self.root)
             except Exception as es:
                 messagebox.showerror("error",f"due to:2{str(es)}",parent=self.root)
-  #fetch function
+#fetch function
     def fetch_data(self):
         conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
                                        database="studentmanagementsys")
@@ -158,8 +165,8 @@ class Student:
                 self.Student_table.insert('',END,values= a)
             conn.commit()
         conn.close()
-        
-     def clear(self):
+
+    def clear(self):
         self.Roll_No_var.set("")
         self.name_var.set("")
         self.gender_var.set("")
@@ -188,7 +195,7 @@ class Student:
                 conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
                                                database="studentmanagementsys")
                 my_cursur = conn.cursor()
-                my_cursur.execute("insert into student values(%s,%s,%s,%s,%s,%s)", (
+                my_cursur.execute("update student set roll=%s,name=%s,email=%s,gender=%s,contact=%s,address=%s", (
                     self.Roll_No_var.get(),
                     self.name_var.get(),
                     self.email_var.get(),
@@ -203,54 +210,29 @@ class Student:
             except Exception as es:
                 messagebox.showerror("error", f"due to:2{str(es)}", parent=self.root)
 
-    def fetch_data(self):
-        conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
-                                           database="studentmanagementsys")
-        my_cursur = conn.cursor()
-        my_cursur.execute("select * from student")
-        data = my_cursur.fetchall()
-        if len(data) != 0:
-            self.Student_table.delete(*self.Student_table.get_children())
-            for a in data:
-                self.Student_table.insert('', END, values=a)
-            conn.commit()
-        conn.close()
-
     def delete_data(self):
         if self.Roll_No_var.get()=="":
-            messagebox.showerror("error", "all fields are required")
+            messagebox.showerror("error", "all fields are required",parent=self.root)
         else:
             try:
-                delete=messagebox.askyesno("delete","are sure delete this statment")
+                delete=messagebox.askyesno("delete","are sure delete this statment",parent=self.root)
                 if delete>0:
                     conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
                                            database="studentmanagementsys")
                     my_cursur = conn.cursor()
-                    sql="delete from student where Roll_No=%s"                  #other way of writing sql query instead of cursor()
-                    value=(self.Roll_No_var.get(),)
-                    mycursur.execute(sql,value)
+                    my_cursur.execute("delete from student where Roll=%s",(
+                        self.Roll_No_var.get(),
+                    ))
+
                 else:
                     if not delete:
                         return
-                    conn.commit()
-                    self.fetch_data()
-                    conn.close()
-                    messagebox.showinfo("delete, your student has been deleted",parent=self.root)
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                conn.commit()
+                self.fetch_data()
+                conn.close()
+                messagebox.showinfo("delete","your student has been deleted",parent=self.root)
+            except Exception as es:
+                messagebox.showerror("error", f"due to:2{str(es)}", parent=self.root)
 
 
 
@@ -258,3 +240,5 @@ class Student:
 root=Tk()
 ob=Student(root)
 root.mainloop()
+
+
