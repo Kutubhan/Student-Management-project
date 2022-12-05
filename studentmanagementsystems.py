@@ -93,14 +93,14 @@ class Student:
         lbl_search.grid(row=0, column=0, pady=10, padx=5, sticky="w")
 
 
-        combo_search = ttk.Combobox(Detail_Frame,width=10, font=("times new roman", 13, "bold"), state="readonly")
+        combo_search = ttk.Combobox(Detail_Frame,width=10,textvariable=self.search_com_var, font=("times new roman", 13, "bold"), state="readonly")
         combo_search['values'] = ("Roll", "Name", "Contact")
         combo_search.grid(row=0, column=1, padx=5, pady=10)
 
-        txt_search = Entry(Detail_Frame, font=("times new roman", 10, "bold"), bd=4, relief=GROOVE)
+        txt_search = Entry(Detail_Frame,textvariable=self.search_var ,font=("times new roman", 10, "bold"), bd=4, relief=GROOVE)
         txt_search.grid(row=0, column=2, padx=5, pady=10, sticky="w")
-        searchbtn = Button(Detail_Frame, text="Search", width=10,pady=5).grid(row=0, column=3, padx=5, pady=10)
-        showallbtn = Button(Detail_Frame, text="Show all", width=10,pady=5).grid(row=0, column=4, padx=5, pady=10)
+        searchbtn = Button(Detail_Frame,command=self.search_data,text="Search", width=10,pady=5).grid(row=0, column=3, padx=5, pady=10)
+        showallbtn = Button(Detail_Frame, text="Show all",command=self.fetch_data ,width=10,pady=5).grid(row=0, column=4, padx=5, pady=10)
 
 #=======Table frame======
         Table_Frame=Frame(Detail_Frame,bd=4,relief=RIDGE,bg="#1560BD")
@@ -235,12 +235,36 @@ class Student:
             except Exception as es:
                 messagebox.showerror("error", f"due to:2{str(es)}", parent=self.root)
 
+    def search_data(self):
+        if self.search_com_var.get()=="" or self.search_var.get()=="":
+            messagebox.showerror("error","please select option")
+        else:
+            try:
+                conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
+                                               database="studentmanagementsys")
+                my_cursur = conn.cursor()
+                my_cursur.execute("select * from student where " +str(self.search_com_var.get()) + " LIKE '%" +str(self.search_var.get())+ "%'")
+                data=my_cursur.fetchall()
+                if len(data) != 0:
+                    self.Student_table.delete(*self.Student_table.get_children())
+                    for i in data:
+                        self.Student_table.insert('',END,values=i)
+                    conn.commit()
+                conn.close()
+            except Exception as es:
+                messagebox.showerror("error", f"due to:2{str(es)}", parent=self.root)
+
+
+
+
+
 
 
 
 root=Tk()
 ob=Student(root)
 root.mainloop()
+
 
 
 
