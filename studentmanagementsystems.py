@@ -5,12 +5,13 @@ from tkinter import messagebox
 
 class Student:
     def __init__(self,root):
-        self.notebook=ttk.Notebook(self.root)
+
         self.root=root
+
         self.root.title("IIT ASHRAM")
         self.root.geometry("1360x700+0+0")
 
-        # =====All variables========
+    # =====All variables========
         self.Roll_No_var = StringVar()
         self.name_var = StringVar()
         self.email_var = StringVar()
@@ -85,7 +86,7 @@ class Student:
 
         # ======Detail Frame======
 
-        Detail_Frame = Frame(bd=4, relief=RIDGE, bg="#1560BD")
+        Detail_Frame = Frame(self.root,bd=4, relief=RIDGE, bg="#1560BD")
         Detail_Frame.place(x=500, y=100, width=800, height=560)
 
         lbl_search=Label(Detail_Frame, text="Search By:", bg="#1560BD", fg="white",font=("times new roman", 20, "bold"))
@@ -240,5 +241,6 @@ class Student:
 root=Tk()
 ob=Student(root)
 root.mainloop()
+
 
 
