@@ -196,13 +196,14 @@ class Student:
                 conn = mysql.connector.connect(host="localhost", username="root", password="kutubkhan",
                                                database="studentmanagementsys")
                 my_cursur = conn.cursor()
-                my_cursur.execute("update student set roll=%s,name=%s,email=%s,gender=%s,contact=%s,address=%s", (
+                my_cursur.execute("update student set roll=%s,name=%s,email=%s,gender=%s,contact=%s,address=%s where Roll=%s", (
                     self.Roll_No_var.get(),
                     self.name_var.get(),
                     self.email_var.get(),
                     self.gender_var.get(),
                     self.contact_var.get(),
                     self.address_var.get()
+                    self.Roll_No_var.get()
                 ))
                 conn.commit()
                 self.fetch_data()
